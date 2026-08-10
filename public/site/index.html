@@ -122,12 +122,15 @@
     <div class="hero__composition" aria-hidden="false">
       <figure class="comp comp--a float" data-parallax="-0.06">
         <img src="assets/granito.jpg" alt="Chapa de granito preto polido" width="900" height="1100" loading="lazy" decoding="async" />
+        <figcaption>Granito Preto Absoluto</figcaption>
       </figure>
       <figure class="comp comp--b float" data-parallax="0.09">
         <img src="assets/marmore.jpg" alt="Mármore branco com veios cinza" width="900" height="900" loading="lazy" decoding="async" />
+        <figcaption>Mármore Carrara</figcaption>
       </figure>
       <figure class="comp comp--c float" data-parallax="0.16">
-        <img src="assets/bancada.jpg" alt="Bancada de granito instalada em cozinha moderna" width="1000" height="750" loading="lazy" decoding="async" />  
+        <img src="assets/bancada.jpg" alt="Bancada de granito instalada em cozinha moderna" width="1000" height="750" loading="lazy" decoding="async" />
+        <figcaption>Bancada sob medida</figcaption>
       </figure>
     </div>
   </div>
@@ -255,7 +258,7 @@
           <button class="btn btn--primary btn--lg ripple" type="submit">Calcular</button>
           <p class="calc__error" id="calcError" role="alert" hidden>Preencha todos os campos corretamente.</p>
         </div>
-      </form>Bancada sob medida
+      </form>
 
       <!-- Resultado -->
       <div class="calc__result" id="calcResult" hidden aria-live="polite">
@@ -424,8 +427,9 @@
   </div>
   <div class="container footer__bottom">
     <p>© <span id="year"></span> Granipox Construção Civil. Todos os direitos reservados.</p>
-    <p>CNPJ 00.000.000/0001-00</p>
+    <p>CNPJ 00.000.000/0001-00 · <button type="button" class="footer__admin" id="adminOpen">Área do administrador</button></p>
   </div>
+
 </footer>
 
 <!-- Botão flutuante do WhatsApp -->
@@ -441,6 +445,33 @@
   <button class="lightbox__nav lightbox__nav--next" id="lbNext" aria-label="Próxima imagem">›</button>
 </div>
 
+<!-- Painel do administrador da vitrine (acesso pelo rodapé ou #admin) -->
+<div class="admin" id="adminPanel" hidden role="dialog" aria-modal="true" aria-label="Administração da vitrine">
+  <div class="admin__box">
+    <header class="admin__head">
+      <h2>Vitrine — administrador</h2>
+      <button type="button" class="admin__close" id="adminClose" aria-label="Fechar painel">×</button>
+    </header>
+
+    <div class="admin__login" id="adminLogin">
+      <label for="adminPass">Senha de acesso</label>
+      <input type="password" id="adminPass" autocomplete="current-password" />
+      <p class="form__error" id="adminError" hidden>Senha incorreta.</p>
+      <button type="button" class="btn btn--primary" id="adminEnter">Entrar</button>
+    </div>
+
+    <div class="admin__content" id="adminContent" hidden>
+      <p class="admin__hint">Edite nome, descrição, categoria e foto de cada produto. As alterações ficam salvas neste navegador.</p>
+      <div class="admin__list" id="adminList"></div>
+      <div class="admin__actions">
+        <button type="button" class="btn btn--primary" id="adminAdd">+ Adicionar produto</button>
+        <button type="button" class="btn btn--ghost" id="adminReset">Restaurar padrão</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="js/script.js" defer></script>
+
 </body>
 </html>

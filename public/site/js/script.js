@@ -48,7 +48,23 @@ const CONFIG = {
   // Produtividade para o prazo estimado
   m2PorDia: 6,
   prazoMinimoDias: 5,
+
+  // Desconto por volume (NÃO aparece para o cliente — aplicado automaticamente).
+  // Quanto maior a área total da obra, menor o preço por m².
+  // "ate" = área total em m²; "fator" = multiplicador aplicado ao valor.
+  descontosPorArea: [
+    { ate: 10, fator: 1 },        // até 10 m²  — sem desconto
+    { ate: 25, fator: 0.95 },     // 10 a 25 m² — 5% menor
+    { ate: 50, fator: 0.9 },      // 25 a 50 m² — 10% menor
+    { ate: 100, fator: 0.85 },    // 50 a 100 m² — 15% menor
+    { ate: 250, fator: 0.8 },     // 100 a 250 m² — 20% menor
+    { ate: Infinity, fator: 0.74 } // acima de 250 m² — 26% menor
+  ],
+
+  // Senha do painel de administração da vitrine
+  adminSenha: "granipox2024",
 };
+
 
 /* ---------- 02. DADOS DE CONTEÚDO ---------- */
 const ICONS = {
@@ -79,7 +95,7 @@ const DIFERENCIAIS = [
   { icon: "file", titulo: "Orçamento sem compromisso", texto: "Medição técnica gratuita e proposta detalhada em até 24 horas." },
 ];
 
-const PRODUTOS = [
+const PRODUTOS_PADRAO = [
   { nome: "Granitos", tag: "Pedra natural", img: "assets/granito.jpg", desc: "Resistência e beleza atemporal para bancadas, pisos e fachadas.", alt: "Chapa de granito preto polido" },
   { nome: "Mármores", tag: "Pedra natural", img: "assets/marmore.jpg", desc: "Veios exclusivos e sofisticação para ambientes de alto padrão.", alt: "Mármore branco com veios cinza" },
   { nome: "Quartzo", tag: "Engenharia", img: "assets/quartzo.jpg", desc: "Superfície não porosa, uniforme e altamente resistente a manchas.", alt: "Cozinha moderna com bancada de quartzo branco" },
@@ -90,6 +106,23 @@ const PRODUTOS = [
   { nome: "Revestimentos", tag: "Fachadas", img: "assets/revestimento.jpg", desc: "Paredes e fachadas em pedra natural com fixação estrutural segura.", alt: "Fachada revestida em pedra natural escura" },
   { nome: "Pisos em pedra", tag: "Ambientes", img: "assets/escada.jpg", desc: "Grandes áreas com paginação planejada e rejunte milimétrico.", alt: "Piso de mármore polido em hall de entrada" },
 ];
+
+/* Vitrine editável pelo administrador (salva no navegador via localStorage) */
+const STORE_PRODUTOS = "granipox_produtos_v1";
+let PRODUTOS = carregarProdutos();
+
+function carregarProdutos() {
+  try {
+    const salvo = JSON.parse(localStorage.getItem(STORE_PRODUTOS));
+    if (Array.isArray(salvo) && salvo.length) return salvo;
+  } catch (e) { /* ignora dados inválidos */ }
+  return PRODUTOS_PADRAO.map((p) => ({ ...p }));
+}
+
+function salvarProdutos() {
+  try { localStorage.setItem(STORE_PRODUTOS, JSON.stringify(PRODUTOS)); } catch (e) { /* cota cheia */ }
+}
+
 
 const SERVICOS = [
   { icon: "tool", titulo: "Instalação", texto: "Equipe própria, ferramental profissional e obra entregue limpa." },
@@ -148,7 +181,28 @@ const whatsUrl = (mensagem) =>
 const abrirWhats = (mensagem) => window.open(whatsUrl(mensagem), "_blank", "noopener");
 
 /* ---------- 04. RENDER DE CONTEÚDO ---------- */
+/** Escapa texto vindo do painel do administrador antes de inserir no HTML. */
+const esc = (t = "") => String(t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+/** Renderiza a vitrine de produtos (no load e após editar no painel admin). */
+function renderProdutos(visivel = false) {
+  const grid = $("#productGrid");
+  if (!grid) return;
+  grid.innerHTML = PRODUTOS.map((p, i) => `
+    <article class="card product reveal${visivel ? " is-visible" : ""}" data-delay="${(i % 3) * 80}">
+      <div class="product__media">
+        <img src="${esc(p.img)}" alt="${esc(p.alt || p.nome)}" loading="lazy" decoding="async" width="1000" height="750" />
+        ${p.tag ? `<span class="product__tag">${esc(p.tag)}</span>` : ""}
+      </div>
+      <div class="product__body">
+        <h3>${esc(p.nome)}</h3><p>${esc(p.desc)}</p>
+        <button class="btn btn--primary btn--sm ripple" type="button" data-produto="${esc(p.nome)}">Solicitar orçamento</button>
+      </div>
+    </article>`).join("");
+}
+
 function renderConteudo() {
+
   // Diferenciais
   $("#diffGrid").innerHTML = DIFERENCIAIS.map((d, i) => `
     <article class="card reveal" data-delay="${i * 70}">
@@ -156,18 +210,9 @@ function renderConteudo() {
       <h3>${d.titulo}</h3><p>${d.texto}</p>
     </article>`).join("");
 
-  // Produtos
-  $("#productGrid").innerHTML = PRODUTOS.map((p, i) => `
-    <article class="card product reveal" data-delay="${(i % 3) * 80}">
-      <div class="product__media">
-        <img src="${p.img}" alt="${p.alt}" loading="lazy" decoding="async" width="1000" height="750" />
-        <span class="product__tag">${p.tag}</span>
-      </div>
-      <div class="product__body">
-        <h3>${p.nome}</h3><p>${p.desc}</p>
-        <button class="btn btn--primary btn--sm ripple" type="button" data-produto="${p.nome}">Solicitar orçamento</button>
-      </div>
-    </article>`).join("");
+  // Produtos (vitrine)
+  renderProdutos();
+
 
   // Serviços
   $("#serviceGrid").innerHTML = SERVICOS.map((s, i) => `
@@ -367,7 +412,11 @@ function initCalculadora() {
     const acabamento = CONFIG.acabamentos.find((a) => a.id === dados.acabamento);
 
     const areaTotal = area * qtd;
-    const valor = material.preco * espessura.fator * acabamento.fator * areaTotal;
+    // Desconto automático por volume (oculto para o cliente):
+    // quanto maior a área total da obra, menor o valor por m².
+    const faixa = CONFIG.descontosPorArea.find((f) => areaTotal <= f.ate) || { fator: 1 };
+    const valor = material.preco * espessura.fator * acabamento.fator * areaTotal * faixa.fator;
+
     const dias = Math.max(CONFIG.prazoMinimoDias, Math.ceil(areaTotal / CONFIG.m2PorDia));
 
     // Exibe o resultado
@@ -522,9 +571,104 @@ function initContato() {
   });
 }
 
-/* ---------- 12. INIT ---------- */
+/* ---------- 12. PAINEL DO ADMINISTRADOR (VITRINE) ---------- */
+function initAdmin() {
+  const painel = $("#adminPanel");
+  const login = $("#adminLogin");
+  const conteudo = $("#adminContent");
+  const lista = $("#adminList");
+  const erro = $("#adminError");
+  if (!painel) return;
+
+  const abrir = () => { painel.hidden = false; document.body.style.overflow = "hidden"; $("#adminPass").focus(); };
+  const fechar = () => { painel.hidden = true; document.body.style.overflow = ""; };
+
+  const desenhar = () => {
+    lista.innerHTML = PRODUTOS.map((p, i) => `
+      <div class="admin__item" data-i="${i}">
+        <img class="admin__thumb" src="${esc(p.img)}" alt="" />
+        <div class="admin__fields">
+          <input type="text" data-campo="nome" value="${esc(p.nome)}" placeholder="Nome do produto" />
+          <input type="text" data-campo="tag" value="${esc(p.tag || "")}" placeholder="Categoria (ex: Sob medida)" />
+          <textarea data-campo="desc" placeholder="Descrição">${esc(p.desc || "")}</textarea>
+          <input type="text" data-campo="alt" value="${esc(p.alt || "")}" placeholder="Descrição da imagem (alt / SEO)" />
+          <input class="admin__file" type="file" accept="image/*" data-campo="arquivo" />
+        </div>
+        <button type="button" class="admin__del" data-remover="${i}">Excluir</button>
+      </div>`).join("");
+  };
+
+  const aplicar = () => { salvarProdutos(); renderProdutos(true); desenhar(); };
+
+  // Abertura: botão do rodapé, atalho Ctrl+Shift+A ou #admin na URL
+  $("#adminOpen")?.addEventListener("click", abrir);
+  $("#adminClose").addEventListener("click", fechar);
+  painel.addEventListener("click", (e) => { if (e.target === painel) fechar(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !painel.hidden) fechar();
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "a") { e.preventDefault(); abrir(); }
+  });
+  if (location.hash === "#admin") abrir();
+
+  const entrar = () => {
+    if ($("#adminPass").value !== CONFIG.adminSenha) { erro.hidden = false; return; }
+    erro.hidden = true;
+    login.hidden = true;
+    conteudo.hidden = false;
+    desenhar();
+  };
+  $("#adminEnter").addEventListener("click", entrar);
+  $("#adminPass").addEventListener("keydown", (e) => { if (e.key === "Enter") entrar(); });
+
+  // Edição de textos
+  lista.addEventListener("input", (e) => {
+    const campo = e.target.dataset.campo;
+    if (!campo || campo === "arquivo") return;
+    const i = Number(e.target.closest(".admin__item").dataset.i);
+    PRODUTOS[i][campo] = e.target.value;
+    salvarProdutos();
+    renderProdutos(true);
+  });
+
+  // Troca de foto (converte para base64 e salva no navegador)
+  lista.addEventListener("change", (e) => {
+    if (e.target.dataset.campo !== "arquivo") return;
+    const arquivo = e.target.files?.[0];
+    if (!arquivo) return;
+    const i = Number(e.target.closest(".admin__item").dataset.i);
+    const leitor = new FileReader();
+    leitor.onload = () => { PRODUTOS[i].img = leitor.result; aplicar(); };
+    leitor.readAsDataURL(arquivo);
+  });
+
+  // Excluir produto
+  lista.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-remover]");
+    if (!btn) return;
+    if (!confirm("Excluir este produto da vitrine?")) return;
+    PRODUTOS.splice(Number(btn.dataset.remover), 1);
+    aplicar();
+  });
+
+  // Adicionar produto
+  $("#adminAdd").addEventListener("click", () => {
+    PRODUTOS.push({ nome: "Novo produto", tag: "Sob medida", img: "assets/granito.jpg", desc: "Descreva este produto.", alt: "Novo produto" });
+    aplicar();
+    lista.lastElementChild?.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+
+  // Restaurar vitrine padrão
+  $("#adminReset").addEventListener("click", () => {
+    if (!confirm("Restaurar a vitrine original? As suas alterações serão perdidas.")) return;
+    PRODUTOS = PRODUTOS_PADRAO.map((p) => ({ ...p }));
+    aplicar();
+  });
+}
+
+/* ---------- 13. INIT ---------- */
 document.addEventListener("DOMContentLoaded", () => {
   renderConteudo();   // precisa vir primeiro: cria os elementos animados
+
   initHeader();
   initReveal();
   initParallax();
@@ -535,4 +679,5 @@ document.addEventListener("DOMContentLoaded", () => {
   initCarousel();
   initAccordion();
   initContato();
+  initAdmin();
 });

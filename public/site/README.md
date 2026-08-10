@@ -67,13 +67,65 @@ Para adicionar um novo material, acrescente uma linha na lista:
 O campo do formulário é preenchido automaticamente.
 
 
+5B. PAINEL DO ADMINISTRADOR DA VITRINE
+--------------------------------------------------------------------
+O administrador pode editar a vitrine de produtos direto no site,
+sem mexer no código.
+
+Como acessar:
+  • clique em "Área do administrador" no rodapé, ou
+  • pressione Ctrl + Shift + A, ou
+  • abra o site com /#admin no final da URL
+
+Senha: definida no CONFIG de js/script.js em:
+  adminSenha: "granipox2024"   <-- TROQUE ESSA SENHA
+
+No painel é possível:
+  • alterar nome, categoria, descrição e texto alternativo (alt/SEO)
+  • trocar a foto de qualquer produto (envio direto do computador)
+  • adicionar novos produtos
+  • excluir produtos
+  • restaurar a vitrine original
+
+Importante: as alterações são salvas no navegador de quem editou
+(localStorage), servindo como personalização rápida. Para que a
+vitrine nova apareça para TODOS os visitantes de forma permanente,
+edite a lista PRODUTOS_PADRAO em js/script.js (item 5 deste manual)
+ou salve as fotos definitivas na pasta assets/.
+
+
+4B. DESCONTO AUTOMÁTICO POR TAMANHO DA OBRA (oculto)
+--------------------------------------------------------------------
+A calculadora aplica automaticamente um desconto por volume que NÃO
+é exibido ao cliente: quanto maior a área total, menor o preço/m².
+
+Configurado no CONFIG de js/script.js:
+
+  descontosPorArea: [
+    { ate: 10,       fator: 1 },     // até 10 m²  - sem desconto
+    { ate: 25,       fator: 0.95 },  // 10 a 25 m²  - 5% menor
+    { ate: 50,       fator: 0.90 },  // 25 a 50 m²  - 10% menor
+    { ate: 100,      fator: 0.85 },  // 50 a 100 m² - 15% menor
+    { ate: 250,      fator: 0.80 },  // 100 a 250 m² - 20% menor
+    { ate: Infinity, fator: 0.74 },  // acima de 250 m² - 26% menor
+  ]
+
+Fórmula final:
+  valor = preçoBase × fatorEspessura × fatorAcabamento
+          × (área × quantidade) × fatorDescontoPorVolume
+
+Para mudar os percentuais, altere apenas os "fator" (0.9 = 10% de
+desconto). Para criar novas faixas, acrescente linhas na lista
+mantendo a ordem crescente de "ate".
+
+
 5. TEXTOS E SEÇÕES
 --------------------------------------------------------------------
 Todo o conteúdo repetitivo está em listas no js/script.js, logo
 abaixo do CONFIG — basta editar o texto entre aspas:
 
   DIFERENCIAIS  → cards da seção "Por que escolher"
-  PRODUTOS      → vitrine de produtos (nome, imagem, descrição)
+  PRODUTOS_PADRAO → vitrine de produtos (nome, imagem, descrição)
   SERVICOS      → cards de serviços
   PROCESSO      → etapas da timeline
   GALERIA       → imagens da galeria/lightbox
@@ -175,6 +227,8 @@ Pages etc.). Não é necessário PHP, banco de dados ou instalação.
 [ ] Endereço correto no Google Maps
 [ ] Links das redes sociais no rodapé (hoje estão como "#")
 [ ] Depoimentos reais de clientes
+[ ] Senha do painel do administrador trocada (adminSenha)
+[ ] Faixas de desconto por volume revisadas
 [ ] Canonical e og:image com o domínio final
 
 ====================================================================

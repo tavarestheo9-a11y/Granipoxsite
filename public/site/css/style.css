@@ -431,3 +431,32 @@ h1, h2, h3, h4 { font-family: var(--font-title); line-height: 1.15; letter-spaci
   .timeline__num { width: 44px; height: 44px; }
   .lightbox__nav { width: 42px; height: 42px; }
 }
+
+/* ---------- ÁREA DO ADMINISTRADOR (vitrine) ---------- */
+.footer__admin { background: none; border: 0; color: #7d838c; font: inherit; cursor: pointer; text-decoration: underline; }
+.footer__admin:hover { color: var(--red); }
+
+.admin { position: fixed; inset: 0; z-index: 120; background: rgba(11, 11, 12, .82); backdrop-filter: blur(6px); display: grid; place-items: center; padding: 20px; overflow-y: auto; }
+.admin__box { background: var(--white); width: min(920px, 100%); max-height: 92vh; overflow-y: auto; border-radius: 18px; padding: 26px; box-shadow: 0 30px 80px rgba(0, 0, 0, .45); }
+.admin__head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.admin__head h2 { font-size: 1.35rem; }
+.admin__close { background: var(--gray-light); border: 0; width: 38px; height: 38px; border-radius: 50%; font-size: 1.4rem; line-height: 1; cursor: pointer; }
+.admin__close:hover { background: var(--red); color: #fff; }
+.admin__hint { color: var(--gray); font-size: .92rem; margin-bottom: 18px; }
+.admin__login { display: grid; gap: 10px; max-width: 320px; }
+.admin__login input { padding: 12px 14px; border: 1px solid #dcdfe4; border-radius: 10px; font: inherit; }
+.admin__list { display: grid; gap: 16px; }
+.admin__item { display: grid; grid-template-columns: 130px 1fr auto; gap: 16px; align-items: start; border: 1px solid #e6e8ec; border-radius: 14px; padding: 14px; }
+.admin__thumb { width: 130px; height: 100px; object-fit: cover; border-radius: 10px; background: var(--gray-light); }
+.admin__fields { display: grid; gap: 8px; }
+.admin__fields input, .admin__fields textarea { width: 100%; padding: 10px 12px; border: 1px solid #dcdfe4; border-radius: 10px; font: inherit; font-size: .92rem; }
+.admin__fields textarea { resize: vertical; min-height: 62px; }
+.admin__file { font-size: .82rem; color: var(--gray); }
+.admin__del { background: var(--gray-light); border: 0; border-radius: 10px; padding: 10px 12px; cursor: pointer; font-size: .85rem; }
+.admin__del:hover { background: var(--red); color: #fff; }
+.admin__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+@media (max-width: 700px) {
+  .admin__item { grid-template-columns: 1fr; }
+  .admin__thumb { width: 100%; height: 150px; }
+}
+.admin[hidden] { display: none; }
