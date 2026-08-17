@@ -17,13 +17,13 @@
 
 /* ---------- 01. CONFIG ---------- */
 const CONFIG = {
-  empresa: "Granipox Construção Civil",
+  empresa: "Granipox Pisos e Revestimentos",
   // Número do WhatsApp no formato internacional, apenas dígitos (55 + DDD + número)
-  whatsapp: "5511999999999",
-  telefone: "(11) 3333-3333",
-  email: "contato@granipox.com.br",
+  whatsapp: "5511958383267",
+  telefone: "(11) 95838-3267",
+  email: "granipoxpisofulget@gmail.com",
   endereco: "Av. das Pedras, 1200 - Distrito Industrial, São Paulo - SP",
-  horario: "Seg a Sex 08h - 18h · Sáb 08h - 12h",
+  horario: "Seg a Sex 08h - 18h · Sáb 08h - 13h",
 
   // Preço base por m² de cada material (R$)
   materiais: [
