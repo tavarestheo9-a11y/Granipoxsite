@@ -17,13 +17,13 @@
 
 /* ---------- 01. CONFIG ---------- */
 const CONFIG = {
-  empresa: "Granipox Construção Civil",
+  empresa: "Granipox Pisos e Revestimentos",
   // Número do WhatsApp no formato internacional, apenas dígitos (55 + DDD + número)
-  whatsapp: "5511999999999",
-  telefone: "(11) 3333-3333",
-  email: "contato@granipox.com.br",
+  whatsapp: "5511958383267",
+  telefone: "(11) 95838-3267",
+  email: "granipoxpisofulget@gmail.com",
   endereco: "Av. das Pedras, 1200 - Distrito Industrial, São Paulo - SP",
-  horario: "Seg a Sex 08h - 18h · Sáb 08h - 12h",
+  horario: "Seg a Sex 08h - 18h · Sáb 08h - 13h",
 
   // Preço base por m² de cada material (R$)
   materiais: [
@@ -162,7 +162,7 @@ const DEPOIMENTOS = [
 const FAQ = [
   { q: "Vocês fazem medição no local?", a: "Sim. A medição técnica é gratuita dentro da região metropolitana e agendada em até 48 horas após o contato." },
   { q: "Qual o prazo médio de entrega?", a: "Projetos residenciais ficam prontos entre 5 e 12 dias úteis após a aprovação do orçamento e da chapa escolhida." },
-  { q: "A calculadora do site mostra o valor final?", a: "Não. Ela gera uma estimativa baseada em médias de mercado. O valor definitivo sai após a medição técnica." },
+  { q: "Como solicito um orçamento?", a: "Envie sua mensagem pelo formulário de contato. Nossa equipe retornará para entender o projeto e agendar a medição técnica." },
   { q: "Vocês oferecem garantia?", a: "Sim, garantia por escrito de 12 meses sobre a instalação, além da garantia própria do material." },
   { q: "Trabalham com obras fora da capital?", a: "Sim, atendemos todo o estado. Para outras regiões, o frete é calculado no orçamento." },
   { q: "Quais as formas de pagamento?", a: "Pix, transferência, cartão em até 12x e condições especiais para construtoras e arquitetos." },
@@ -196,7 +196,7 @@ function renderProdutos(visivel = false) {
       </div>
       <div class="product__body">
         <h3>${esc(p.nome)}</h3><p>${esc(p.desc)}</p>
-        <button class="btn btn--primary btn--sm ripple" type="button" data-produto="${esc(p.nome)}">Solicitar orçamento</button>
+        <a class="btn btn--primary btn--sm ripple" href="#contato">Solicitar orçamento</a>
       </div>
     </article>`).join("");
 }
@@ -268,12 +268,6 @@ function renderConteudo() {
 
   $("#footerContact").innerHTML = contatos.slice(0, 4)
     .map((c) => `<li>${c.value}</li>`).join("");
-
-  // Selects da calculadora
-  const fill = (sel, list) => { $(sel).innerHTML = list.map((o) => `<option value="${o.id}">${o.nome}</option>`).join(""); };
-  fill("#material", CONFIG.materiais);
-  fill("#espessura", CONFIG.espessuras);
-  fill("#acabamento", CONFIG.acabamentos);
 
   // WhatsApp flutuante e ano
   $("#whatsFloat").href = whatsUrl(`Olá! Vim pelo site da ${CONFIG.empresa} e gostaria de um orçamento.`);
@@ -674,7 +668,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initParallax();
   initCounters();
   initRipple();
-  initCalculadora();
   initLightbox();
   initCarousel();
   initAccordion();
